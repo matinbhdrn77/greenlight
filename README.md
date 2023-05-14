@@ -29,4 +29,14 @@ In contrast the omitempty directive hides a field in the JSON output if and only
 - An empty array , slice or map
 - A nil pointer or a nil interface value
 
-*Struct tag directive string*: You can use this on  individual struct fields to force the data to be represented as a string in the JSON output. ``json:"runtime,omitempty,string"`` but work only on uint*, int*, float*, bool
+*Struct tag directive string*: You can use this on  individual struct fields to force the data to be represented as a string in the JSON output. ``json:"runtime,omitempty,string"`` but work only on uint*, int*, float*, bool.
+
+When Go is encoding a particular type to JSON, it looks to see if the type has a `MarshalJSON()` method implemented on it. If it has, then Go will call this method to determine how to encode it.
+```go
+    type Marshaler interface {
+        MarshalJSON() ([]byte, error)
+    }
+```
+If the type doesn’t have a `MarshalJSON()` method, then Go will fall back to trying to encode it to JSON based on its own internal set of rules. So, if we want to customize how something is encoded, all we need to do is implement a `MarshalJSON()` method on it which returns a custom JSON representation of itself in a `[]byte` slice.
+
+The rule about pointers vs. values for receivers is that value methods can be invoked on pointers and values, but pointer methods can only be invoked on pointers.
