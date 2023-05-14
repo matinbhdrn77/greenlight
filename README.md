@@ -66,3 +66,5 @@ if there is no ensure that there are no additional JSON values (or any other con
 it returns an `io.EOF` (end of file) error.
 
 Go is decoding some JSON, it will check to see if the destination type satisfies the json.Unmarshaler interface. If it does satisfy the interface, then Go will call it’s `UnmarshalJSON()` method to determine how to decode the provided JSON into the target type.
+
+### Ch4.5 Validating JSON Input
