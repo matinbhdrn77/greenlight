@@ -40,3 +40,14 @@ When Go is encoding a particular type to JSON, it looks to see if the type has a
 If the type doesn’t have a `MarshalJSON()` method, then Go will fall back to trying to encode it to JSON based on its own internal set of rules. So, if we want to customize how something is encoded, all we need to do is implement a `MarshalJSON()` method on it which returns a custom JSON representation of itself in a `[]byte` slice.
 
 The rule about pointers vs. values for receivers is that value methods can be invoked on pointers and values, but pointer methods can only be invoked on pointers.
+
+## Chapter4 Parsing JSON Requests
+
+Using json.Decoder is generally the best choice. It’s more efficient than json.Unmarshal() , requires less code, and offers some helpful settings that you can use to tweak its behavior.
+
+
+`err := json.NewDecoder(r.Body).Decode(&input)`
+1. When decoding a JSON object into a struct, the key/value pairs in the JSON are mapped to the struct fields based on the struct tag names. If there is no matching struct tag, Go will attempt to decode the value into a field that matches the key name (exact matchesare preferred, but it will fall back to a case-insensitive match). Any JSON key/value pairs which cannot be successfully mapped to the struct fields will be silently ignored.
+2. There is no need to close `r.Body` after it has been read. This will be done automatically by Go’s `http.Server` , so you don’t have too.
+
+If we omit a particular key/value pair in our JSON request body. => it save thst field as a zero value, how can you tell the difference between a client not providing a key/value pair, and providing a key/value pair but deliberately setting it to its zero value?
