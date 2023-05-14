@@ -14,3 +14,6 @@ You would write any other text response: using `w.Write()` , `ioWriteString()` o
 Go’s **encoding/json** package provides two options for encoding things toJSON. You can either call the *json.Marshal()* function, or you can declare and use a *json.Encoder* type.
 
 `func Marshal(v interface{}) ([]byte, error)`
+`err := json.NewEncoder(w).Encode(data)` => write to writer in a single step means no time for setting header
+
+All the fields in our struct are exported (i.e. start with a capital letter), which is necessary for them to be visible to Go’s `encoding/json` package. Any fields which aren’t exported won’t be included when encoding a struct to JSON.
