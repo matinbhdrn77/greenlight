@@ -64,3 +64,5 @@ Go’s json.Decoder provides a `DisallowUnknownFields()` setting for handling un
 
 if there is no ensure that there are no additional JSON values (or any other content) in the request body, we will need to call `Decode()` a second time in our `readJSON()` helper and check that
 it returns an `io.EOF` (end of file) error.
+
+Go is decoding some JSON, it will check to see if the destination type satisfies the json.Unmarshaler interface. If it does satisfy the interface, then Go will call it’s `UnmarshalJSON()` method to determine how to decode the provided JSON into the target type.
