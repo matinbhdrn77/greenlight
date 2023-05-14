@@ -28,3 +28,5 @@ In contrast the omitempty directive hides a field in the JSON output if and only
 - Equal to false , 0 , or ""
 - An empty array , slice or map
 - A nil pointer or a nil interface value
+
+*Struct tag directive string*: You can use this on  individual struct fields to force the data to be represented as a string in the JSON output. ``json:"runtime,omitempty,string"`` but work only on uint*, int*, float*, bool
