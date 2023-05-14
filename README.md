@@ -10,3 +10,7 @@ The *httprouter* package provides a few configuration options that you can use t
 
 JSON is just text. key must be string. value can be any JS object.
 You would write any other text response: using `w.Write()` , `ioWriteString()` or one of the `fmt.Fprint` functions. But you have to set `Content-Type: application/json`
+
+Go’s **encoding/json** package provides two options for encoding things toJSON. You can either call the *json.Marshal()* function, or you can declare and use a *json.Encoder* type.
+
+`func Marshal(v interface{}) ([]byte, error)`
