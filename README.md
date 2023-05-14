@@ -51,3 +51,16 @@ Using json.Decoder is generally the best choice. It’s more efficient than json
 2. There is no need to close `r.Body` after it has been read. This will be done automatically by Go’s `http.Server` , so you don’t have too.
 
 If we omit a particular key/value pair in our JSON request body. => it save thst field as a zero value, how can you tell the difference between a client not providing a key/value pair, and providing a key/value pair but deliberately setting it to its zero value?
+
+Two classes of error that your application might encounter:
+1. Expected errors: Occur during normal operation. for example those caused by a database query timeout, a networkre source being unavailable, or bad user input. These errors don’t necessarily mean there is a problem with your program itself — in fact they’re often caused by things outside the control of your program practice to return these kinds of errors and handle them gracefully.
+2. Unexpected errors: which should not happen during normal operation, and if they do it is probably the result of a developer mistake or a logical error in your codebase. These errors are truly exceptional, and using panic in these circumstances is more widely accepted. In fact, the Go standard library frequently does this when you trying to access an out-of-bounds index in a slice, or trying to close an already-closed channel.
+
+`json.InvalidUnmarshalError` at runtime it’s because we as the developers have passed an unsupported value to Decode(). This is firmly an unexpected error which we shouldn’t see under normal operation, and is something that should be picked up in development and tests long before deployment.
+
+Go’s json.Decoder provides a `DisallowUnknownFields()` setting for handling unwanted fields in request.
+
+`json.Decoder` is designed to support streams of JSON data. When we call `Decode()` on our request body, it actually reads the first JSON value only from the body and decodes it. If we made a second call to `Decode()` , it would read and decode the second value and so on. To ensure that there are no additional JSON values (or any other content) in the request body, we will need to call `Decode()` a second time in our readJSON() helper and check that it returns an `io.EOF` (end of file) error.
+
+if there is no ensure that there are no additional JSON values (or any other content) in the request body, we will need to call `Decode()` a second time in our `readJSON()` helper and check that
+it returns an `io.EOF` (end of file) error.
