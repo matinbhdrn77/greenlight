@@ -67,4 +67,6 @@ it returns an `io.EOF` (end of file) error.
 
 Go is decoding some JSON, it will check to see if the destination type satisfies the json.Unmarshaler interface. If it does satisfy the interface, then Go will call it’s `UnmarshalJSON()` method to determine how to decode the provided JSON into the target type.
 
-### Ch4.5 Validating JSON Input
+## Chapter5 Database Setup and Configuration
+
+we’ll use the `sql.Open()` function to establish a new `sql.DB` connection pool, then — because connections to the database are established lazily as and when needed for the first time — we will also need to use the `db.PingContext()` method to actually create a connection and verify that everything is set up correctly.
