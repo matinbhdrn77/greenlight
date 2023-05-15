@@ -145,3 +145,5 @@ execute actions on our movies table will be very clear and readable from the per
 `app.models.Movies.Insert(...)`
 
 ## Chapter8 Advanced CRUP Operations
+
+Change the fields in our input struct to be pointers. Then to see if a client has provided a particular key/value pair in the JSON, we can simply check whether the corresponding field in the input struct equals nil or not.
