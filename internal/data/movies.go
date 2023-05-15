@@ -60,13 +60,13 @@ type MovieModel struct {
 
 func (m MovieModel) Insert(movie *Movie) error {
 	query := `
-	NSERT INTO movies (title, year, runtime, genres)
+	INSERT INTO movies (title, year, runtime, genres)
 	VALUES ($1, $2, $3, $4)
 	RETURNING id, created_at, version`
 
 	args := []interface{}{movie.Title, movie.Year, movie.RunTime, pq.Array(movie.Genres)}
 
-	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.RunTime, &movie.Version)
+	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 func (m MovieModel) Update(movie *Movie) error {
