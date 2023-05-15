@@ -143,3 +143,5 @@ type application struct {
 ```
 execute actions on our movies table will be very clear and readable from the perspective of our API handlers. :
 `app.models.Movies.Insert(...)`
+
+## Chapter8 Advanced CRUP Operations
