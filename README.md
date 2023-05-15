@@ -147,3 +147,18 @@ execute actions on our movies table will be very clear and readable from the per
 ## Chapter8 Advanced CRUP Operations
 
 Change the fields in our input struct to be pointers. Then to see if a client has provided a particular key/value pair in the JSON, we can simply check whether the corresponding field in the input struct equals nil or not.
+
+**SQL Query Timeouts**
+Go also provides context-aware variants of these Exec(), `QueryRow()` methods: `ExecContext()` and `QueryRowContext()`. These variants accept a context.Context instance as the first
+parameter which you can leverage to terminate running database queries.
+
+```go
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		...
+	)
+```
+
+It’s possible that the timeout deadline will be hit before the PostgreSQL query even starts.
