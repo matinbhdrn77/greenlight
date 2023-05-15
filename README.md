@@ -99,3 +99,12 @@ The connection pool has four methods that we can use to configure its behavior:
 For every change that you want to make to your database schema (like creating a table, adding a column, or removing an unused index) you create a pair of migration files. One file is the ‘up’ migration which contains the SQL statements necessary to implement the change, and the other is a ‘down’ migration which contains the SQL statements to reverse (or roll-back) the change.
 
 `$ migrate create -seq -ext=.sql -dir=./migrations create_movies_table` -seq => use sequential number 0001, 0002, ...
+
+Executing migration : `$ migrate -path=./migrations -database=$GREENLIGHT_DB_DSN up`
+`\dt` => listing tables `\d movies` => list movies table
+
+`$ migrate -path=./migrations -database=$EXAMPLE_DSN version` => to see which migration version your database is currently on 
+
+`$ migrate -path=./migrations -database=$EXAMPLE_DSN goto 1` => migrate up or down to a specific version
+
+`$ migrate -path=./migrations -database =$EXAMPLE_DSN down ` => rolling bacl all migrations
