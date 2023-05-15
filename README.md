@@ -108,3 +108,38 @@ Executing migration : `$ migrate -path=./migrations -database=$GREENLIGHT_DB_DSN
 `$ migrate -path=./migrations -database=$EXAMPLE_DSN goto 1` => migrate up or down to a specific version
 
 `$ migrate -path=./migrations -database =$EXAMPLE_DSN down ` => rolling bacl all migrations
+
+Patter for models: 
+
+inside internal/data/models.go:
+```go
+    type Models struct {
+        Movies MovieModel
+        User UserModel
+    }
+
+    func NewModels(db *sql.DB) Models {
+        return Models{
+            Movies: MovieModel{DB: db},
+        }
+    }
+```
+inside internal/data/movies.go:
+```go
+    type MovieModel struct {
+        DB *sql.DB
+    }
+
+    func (m MovieModel) Insert(movie *Movie) error {
+        return nil
+    }
+```
+inside main.go:
+```go
+type application struct {
+	...
+	models data.Models
+}
+```
+execute actions on our movies table will be very clear and readable from the perspective of our API handlers. :
+`app.models.Movies.Insert(...)`
