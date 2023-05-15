@@ -114,7 +114,7 @@ func (m MovieModel) Update(movie *Movie) error {
 		movie.Title,
 		movie.Year,
 		movie.Runtime,
-		movie.Genres,
+		pq.Array(movie.Genres),
 		movie.ID,
 	}
 
