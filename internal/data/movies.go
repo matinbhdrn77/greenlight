@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -56,6 +57,40 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 
 type MovieModel struct {
 	DB *sql.DB
+}
+
+func (m MovieModel) Get(id int64) (*Movie, error) {
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `SELECT id, created_at, title, year, runtime, genres, version
+	FROM movies
+	WHERE id = $1`
+
+	var movie Movie
+
+	err := m.DB.QueryRow(query, id).Scan(
+		&movie.ID,
+		&movie.CreatedAt,
+		&movie.Title,
+		&movie.Year,
+		&movie.RunTime,
+		pq.Array(&movie.Genres),
+		&movie.Version,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &movie, nil
+
 }
 
 func (m MovieModel) Insert(movie *Movie) error {
