@@ -52,6 +52,7 @@ Using json.Decoder is generally the best choice. It’s more efficient than json
 
 If we omit a particular key/value pair in our JSON request body. => it save thst field as a zero value, how can you tell the difference between a client not providing a key/value pair, and providing a key/value pair but deliberately setting it to its zero value?
 
+**Error**
 Two classes of error that your application might encounter:
 1. Expected errors: Occur during normal operation. for example those caused by a database query timeout, a networkre source being unavailable, or bad user input. These errors don’t necessarily mean there is a problem with your program itself — in fact they’re often caused by things outside the control of your program practice to return these kinds of errors and handle them gracefully.
 2. Unexpected errors: which should not happen during normal operation, and if they do it is probably the result of a developer mistake or a logical error in your codebase. These errors are truly exceptional, and using panic in these circumstances is more widely accepted. In fact, the Go standard library frequently does this when you trying to access an out-of-bounds index in a slice, or trying to close an already-closed channel.
@@ -93,3 +94,8 @@ The connection pool has four methods that we can use to configure its behavior:
 - This doesn’t guarantee that a connection will exist in the pool for a whole hour; it’s possible that a connection will become unusable for some reason and be automatically closed before then.
 - A connection can still be in use more than one hour after being created — it just cannot start to be reused after that time.
 4. `SetConnMaxIdleTime()` method : limit the maximum length of time that a connection can be idle for before it is marked as expired. By default there’s no limit.
+
+## Chapter6 SQL Migrations
+For every change that you want to make to your database schema (like creating a table, adding a column, or removing an unused index) you create a pair of migration files. One file is the ‘up’ migration which contains the SQL statements necessary to implement the change, and the other is a ‘down’ migration which contains the SQL statements to reverse (or roll-back) the change.
+
+`$ migrate create -seq -ext=.sql -dir=./migrations create_movies_table` -seq => use sequential number 0001, 0002, ...
