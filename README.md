@@ -70,3 +70,26 @@ Go is decoding some JSON, it will check to see if the destination type satisfies
 ## Chapter5 Database Setup and Configuration
 
 we’ll use the `sql.Open()` function to establish a new `sql.DB` connection pool, then — because connections to the database are established lazily as and when needed for the first time — we will also need to use the `db.PingContext()` method to actually create a connection and verify that everything is set up correctly.
+
+`export GREENLIGHT_DB_DSN='postgres://reenlight:pa55word@localhost/greenlight'`
+```go
+flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("GREENLIGHT_DB_DSN"), "PostgreSQL DSN")
+```
+`psql $GREENLIGHT_DB_DSN`
+
+**How does the sql.DB connection pool work?**
+`sql.DB` pool contains two types of connections:
+A connection is marked as **in-use** when you are using it to perform a database task, such as executing a SQL statement or querying rows, and when the task is complete the connection is then marked as **idle**.
+
+When you instruct Go to perform a database task, it will first check if any idle connections are available in the pool. If one is available, then Go will reuse this existing connection and mark it as in-use for the duration of the task. If there are no idle connections in the pool when you need one, then Go will create a new additional connection.
+
+When Go reuses an idle connection from the pool, any problems with the connection are handled gracefully. Bad connections will automatically be re-tried twice before giving up, at which point Go will remove the bad connection from the pool and create a new one to carry out the task.
+
+**Configuring the pool**
+The connection pool has four methods that we can use to configure its behavior:
+1. `SetMaxOpenConns()` method : set an upper limit on the number of ‘open’ connections (in-use + idle connections) in the pool. By default is unlimited. The higher MaxOpenConns limit, the more database queries can be performed concurrently and the lower the risk is that the connection pool itself will be a bottleneck in your application. If the MaxOpenConns limit is reached, and all connections are in-use, then any further database tasks will be forced to wait until a connection becomes free and marked as idle so it’s important to always set a timeout on database tasks using a context.Context object. You should tweak this value for your hardware depending on the results of benchmarking and load-testing.
+2. `SetMaxIdleConns()` method : upper limit on the number of idle connections in the pool. Deafault is 2. Keeping an idle connection takes up memory. *you only want to keep a connection idle if you’re likely to be using it again soon.*
+3. `SetConnMaxLifetime()` method : limit the maximum length of time that a connection can be reused for. By default, there’s no maximum lifetime and connections will be reused forever.
+- This doesn’t guarantee that a connection will exist in the pool for a whole hour; it’s possible that a connection will become unusable for some reason and be automatically closed before then.
+- A connection can still be in use more than one hour after being created — it just cannot start to be reused after that time.
+4. `SetConnMaxIdleTime()` method : limit the maximum length of time that a connection can be idle for before it is marked as expired. By default there’s no limit.
