@@ -272,3 +272,9 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 `Allow()` method on the rate limiter exactly one token will be consumed from the bucket. If there are no tokens left in the bucket, then `Allow()` will return false.
 
 Code behind the Allow() method is protected by a mutex and is safe for concurrent use.
+
+**IP-based Rate Limiting**
+Create an in-memory map of rate limiters, using the IP address for each client as the map key. For any subsequent requests, we will retrieve the client’s rate limiter from the map and check whether the request is permitted by calling its Allow() method, just like we did before.
+
+We have multiple goroutines accessing the map concurrently, we’ll
+need to protect access to the map by using a mutex to prevent race conditions.
