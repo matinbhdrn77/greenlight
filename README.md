@@ -163,7 +163,7 @@ parameter which you can leverage to terminate running database queries.
 
 It’s possible that the timeout deadline will be hit before the PostgreSQL query even starts.
 
-## Chapter9 Filtering, Sorting, and Pagination
+## Chapter8 Filtering, Sorting, and Pagination
 
 `r.URL.Query()` returns a url.Values type, which is a map holding the query string data. Using the `Get()` method return thev alue for a specific key as a string type, or the empty string "" if no matching key exists.
 
@@ -203,9 +203,13 @@ LIMIT = page_size
 OFFSET = (page - 1) * page_size
 ```
 
-## Chapter10 Structured Logging and Error Handling
+## Chapter9 Structured Logging and Error Handling
 
 We want to write log entries in this format :
 `{"level":"INFO","time":"2020-12-16T10:53:35Z","message":"starting server","properties":{"addr":":4000","env":"development"}}`
 
-Our `Logger` type is a fairly thin wrapper around an io.Writer . We have some helper methods like `PrintInfo()` and `PrintError()` which accept some data for the log entry, encode this data to JSON, and then write it to the io.Writer .
+Our `Logger` type is a fairly thin wrapper around an io.Writer . We have some helper methods like `PrintInfo()` and `PrintError()` which accept some data for the log entry, encode this data to JSON, and then write it to the io.Writer. You can also use zerolog package as a third-party package for logging.
+
+## Chapter10 Panic Recovery
+
+Panics in our API handlers will be recovered automatically by Go’s http.Server => Unwind the stack for the affected goroutine (calling deferred functions along the way), close the underlying HTTP connection, and log an error message and stack trace. Create a middleware to send 500 server error if panic happen.
