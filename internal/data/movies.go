@@ -172,7 +172,7 @@ func (m MovieModel) Delete(id int64) error {
 
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 	query := fmt.Sprintf(`
-		SELECT count(*) OVER() id, created_at, title, year, runtime, genres, version
+		SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE (to_tsvector('english', title) @@ plainto_tsquery('english', $1) OR $1 = '')
 		AND (genres @> $2 OR $2 = '{}')
