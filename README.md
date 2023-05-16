@@ -162,3 +162,7 @@ parameter which you can leverage to terminate running database queries.
 ```
 
 It’s possible that the timeout deadline will be hit before the PostgreSQL query even starts.
+
+## Chapter9 Filtering, Sorting, and Pagination
+
+`r.URL.Query()` returns a url.Values type, which is a map holding the query string data. Using the `Get()` method return thev alue for a specific key as a string type, or the empty string "" if no matching key exists.
