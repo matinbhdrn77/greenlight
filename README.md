@@ -166,3 +166,17 @@ It’s possible that the timeout deadline will be hit before the PostgreSQL quer
 ## Chapter9 Filtering, Sorting, and Pagination
 
 `r.URL.Query()` returns a url.Values type, which is a map holding the query string data. Using the `Get()` method return thev alue for a specific key as a string type, or the empty string "" if no matching key exists.
+
+The hardest part of building a dynamic filtering feature like this is the SQL query to retrieve the data — we need it to work with no filters, filters on both title and genres , or a filter on only one of them.
+
+```SQL
+SELECT id, created_at, title, year, runtime, genres, version
+FROM movies
+WHERE (LOWER(title) = LOWER($1) OR $1 = '')
+AND (genres @> $2 OR $2 = '{}')
+ORDER BY id
+```
+This SQL query is designed so that each of the filters behaves like it is ‘optional’. `(LOWER(title) = LOWER($1) OR $1 = '')` will evaluate as `true` if the placeholder parameter $1 is a case-insensitive match for the movie title or the placeholder parameter equals ''.
+
+The `(genres @> $2 OR $2 = '{}')` condition works in the same way. The @> symbol is the ‘contains’ operator for PostgreSQL arrays, and this condition will return true if all values in the placeholder parameter `$2` are contained in the database genres field or the placeholder parameter contains an empty array.
+https://www.postgresql.org/docs/9.6/functions-array.html
