@@ -213,3 +213,62 @@ Our `Logger` type is a fairly thin wrapper around an io.Writer . We have some he
 ## Chapter10 Panic Recovery
 
 Panics in our API handlers will be recovered automatically by Go’s http.Server => Unwind the stack for the affected goroutine (calling deferred functions along the way), close the underlying HTTP connection, and log an error message and stack trace. Create a middleware to send 500 server error if panic happen.
+
+## Chapter11 Rate Limiting
+
+rate limiting to prevent clients from making too many requests too quickly, and putting excessive strain on your server.
+
+Create middleware to check how many requests have been received in the last ‘N’ seconds and — if there have been too many — then it should send the client a 429 Too Many Requests response. We’ll position this middleware before our main application handlers, so that it carries out this check before we do any expensive processing like decoding a JSON request body or querying our database.
+
+Create middleware to rate-limit requests to your API endpoints, first by making a single rate global limiter, then extending it to support per-client limiting based on IP address.
+
+Make rate limiter behavior configurable at runtime, including disabling the rate limiter altogether for testing purposes.
+
+**Globa Rate Limiting**
+This will consider all the requests that our API receives (rather than having separate rate limiters for every individual client).
+
+`x/time/rate` provides a tried-and-tested implementation of a token bucket rate limiter.
+
+*How token-bucket rate limiters work?*
+
+A Limiter controls how frequently events are allowed to happen. It implements a “token bucket” of size b , initially full and refilled at rate r tokens per second.
+
+1. We will have a bucket that starts with b tokens in it.
+2. Each time we receive a HTTP request, we will remove one token from the bucket.
+3. Every 1/r seconds, a token is added back to the bucket — up to a maximum of b total tokens.
+4. If we receive a HTTP request and the bucket is empty, then we should return a 429 Too Many Requests response.
+
+Our application would allow a maximum ‘burst’ of b HTTP requests in quick succession, but over time it would allow an average of r requests per second.
+
+```go
+// Note that the Limit type is an 'alias' for float64.
+func NewLimiter(r Limit, b int) *Limiter
+```
+
+```go
+func (app *application) exampleMiddleware(next http.Handler) http.Handler {
+// Any code here will run only once, when we wrap something with the middleware.
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    // Any code here will run for every request that the middleware handles.
+    next.ServeHTTP(w, r)
+    })
+}
+```
+
+Make a rateLimit() middleware method which creates a new rate limiter as part of the ‘initialization’ code, and then uses this rate limiter for every request that it subsequently handlers.
+
+```go
+func (app *application) rateLimit(next http.Handler) http.Handler {
+	limiter := rate.NewLimiter(2, 4)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			app.rateLimitExceededResponse(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+```
+`Allow()` method on the rate limiter exactly one token will be consumed from the bucket. If there are no tokens left in the bucket, then `Allow()` will return false.
+
+Code behind the Allow() method is protected by a mutex and is safe for concurrent use.
