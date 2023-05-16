@@ -194,3 +194,11 @@ To keep our SQL query performing quickly as the dataset grows, it’s sensible t
 
 **GIN** indexes are “inverted indexes” which are appropriate for data values that contain multiple component values, such as arrays. An inverted index contains a separate entry for each component value, and can efficiently handle queries that test for the presence of specific component values.
 
+### Paginating Lists
+
+The LIMIT clause allows you to set the maximum number of records that a SQL query should return, and OFFSET allows you to ‘skip’ a specific number of rows before starting to return records from the query.
+
+```go
+LIMIT = page_size
+OFFSET = (page - 1) * page_size
+```
