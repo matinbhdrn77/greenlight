@@ -202,3 +202,10 @@ The LIMIT clause allows you to set the maximum number of records that a SQL quer
 LIMIT = page_size
 OFFSET = (page - 1) * page_size
 ```
+
+## Chapter10 Structured Logging and Error Handling
+
+We want to write log entries in this format :
+`{"level":"INFO","time":"2020-12-16T10:53:35Z","message":"starting server","properties":{"addr":":4000","env":"development"}}`
+
+Our `Logger` type is a fairly thin wrapper around an io.Writer . We have some helper methods like `PrintInfo()` and `PrintError()` which accept some data for the log entry, encode this data to JSON, and then write it to the io.Writer .
