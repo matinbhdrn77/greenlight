@@ -278,3 +278,5 @@ Create an in-memory map of rate limiters, using the IP address for each client a
 
 We have multiple goroutines accessing the map concurrently, we’ll
 need to protect access to the map by using a mutex to prevent race conditions.
+
+We must delete old rate limiter from map => record the last seen time for each client. We can then run a background goroutine in which we periodically delete any clients that we haven’t been seen recently from the clients map.
