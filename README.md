@@ -180,3 +180,17 @@ This SQL query is designed so that each of the filters behaves like it is ‘opt
 
 The `(genres @> $2 OR $2 = '{}')` condition works in the same way. The @> symbol is the ‘contains’ operator for PostgreSQL arrays, and this condition will return true if all values in the placeholder parameter `$2` are contained in the database genres field or the placeholder parameter contains an empty array.
 https://www.postgresql.org/docs/9.6/functions-array.html
+
+**Partial Serching**:
+```SQL
+WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+```
+1.  `to_tsvector('simple', title)` function takes a movie title and splits it into lexemes. We specify the simple configuration, which means that the lexemes are just lowercase versions of the words in the title†. "The Breakfast" => "the", "breakfast"
+2. `plainto_tsquery('simple', $1)` function takes a search value and turns it into a formatted query term that PostgreSQL full-text search can understand. It normalizes thesearch value (again using the simple configuration), strips any special characters, and inserts the and operator & between the words. "The Club" => query term 'the' & 'club' .
+3. The @@ operator is the matches operator. In our statement we are using it to check whether the generated query term matches the lexemes. To continue the example, the query term 'the' & 'club' will match rows which contain both lexemes 'the' and 'club'.
+
+**Adding indexes**
+To keep our SQL query performing quickly as the dataset grows, it’s sensible to use indexes to help avoid full table scans and avoid generating the lexemes for the title field every time the query is run.
+
+**GIN** indexes are “inverted indexes” which are appropriate for data values that contain multiple component values, such as arrays. An inverted index contains a separate entry for each component value, and can efficiently handle queries that test for the presence of specific component values.
+
