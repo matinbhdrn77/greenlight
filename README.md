@@ -319,3 +319,7 @@ We need to use a buffered channel here because signal.Notify() does not wait for
 - The `Shutdown()` method does not wait for any background tasks to complete, nor does it close hijacked long-lived connections like WebSockets. Instead, you will need to implement your own logic to coordinate a graceful shutdown of these things.
 
 ## Chapter13 User Model Setup and Registration
+
+## Chapter14 Sending Emails
+
+We’ll need access to a SMTP (Simple Mail Transfer Protocol) server that we can safely use for testing purposes.
