@@ -295,13 +295,25 @@ Some signals are catchable and others are not. Catachable signals can be interce
 To catch the signals, we’ll need to spin up a background goroutine which runs for the lifetime of our application. In this background goroutine, we can use the `signal.Notify()` function to listen for specific signals and relay them to a channel for further processing.
 
 ```go
+shutDownError := make(chan error)
 go func() {
     quit := make(chan os.Signal, 1)
     signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
     s := <-quit
-    app.logger.PrintInfo("caught signal", map[string]string{
+    app.logger.PrintInfo("shutdown werver", map[string]string{
         "signal": s.String(),
     })
-    os.Exit(0)
+
+    // give 5 seconds to HTTP requests to complete before the application is terminated.
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	shutDownError <- srv.Shutdown(ctx)
 }()
 ```
+`quit` channel is a buffered channel with size 1.
+We need to use a buffered channel here because signal.Notify() does not wait for a receiver to be available when sending a signal to the quit channel. If we had used a regular (non-buffered) channel here instead, a signal could be ‘missed’ if our quit channel is not ready to receive at the exact moment that the signal is sent.
+
+`Shutdown()` gracefully shuts down the server without interrupting any active connections. Shutdown works by first closing all open listeners, then closing all idle connections, and then waiting indefinitely for connections to return to idle and then shut down.
+
+- The `Shutdown()` method does not wait for any background tasks to complete, nor does it close hijacked long-lived connections like WebSockets. Instead, you will need to implement your own logic to coordinate a graceful shutdown of these things.
