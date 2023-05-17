@@ -280,3 +280,14 @@ We have multiple goroutines accessing the map concurrently, we’ll
 need to protect access to the map by using a mutex to prevent race conditions.
 
 We must delete old rate limiter from map => record the last seen time for each client. We can then run a background goroutine in which we periodically delete any clients that we haven’t been seen recently from the clients map.
+
+## Chapter12 Graceful Shutdown
+
+We need a opportunity for in-flight HTTP requests to being processed. Use shutdown signal with `Shutdown()` method.
+
+A common way to terminate is by pressing `Ctrl+C` on your keyboard to send an interrupt signal — also known as a `SIGINT`.
+
+Some signals are catchable and others are not. Catachable signals can be intercepted by our application and either ignored, or used to trigger a certain action (such as a graceful shutdown) `SIGTERM`. Other signals, like `SIGKILL` , are not catchable and cannot be intercepted.
+
+`$ pkill -SIGKILL <NAME>` , `$ pkill -SIGTERM <NAME>`
+`$ pkill -SIGTERM <NAME>` => OR `Ctrl+\` => exit with the stack dump
