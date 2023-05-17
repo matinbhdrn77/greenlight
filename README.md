@@ -317,3 +317,5 @@ We need to use a buffered channel here because signal.Notify() does not wait for
 `Shutdown()` gracefully shuts down the server without interrupting any active connections. Shutdown works by first closing all open listeners, then closing all idle connections, and then waiting indefinitely for connections to return to idle and then shut down.
 
 - The `Shutdown()` method does not wait for any background tasks to complete, nor does it close hijacked long-lived connections like WebSockets. Instead, you will need to implement your own logic to coordinate a graceful shutdown of these things.
+
+## Chapter13 User Model Setup and Registration
