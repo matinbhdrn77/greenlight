@@ -290,4 +290,18 @@ A common way to terminate is by pressing `Ctrl+C` on your keyboard to send an in
 Some signals are catchable and others are not. Catachable signals can be intercepted by our application and either ignored, or used to trigger a certain action (such as a graceful shutdown) `SIGTERM`. Other signals, like `SIGKILL` , are not catchable and cannot be intercepted.
 
 `$ pkill -SIGKILL <NAME>` , `$ pkill -SIGTERM <NAME>`
-`$ pkill -SIGTERM <NAME>` => OR `Ctrl+\` => exit with the stack dump
+`$ pkill -SIGTERM <NAME>` => OR `Ctrl+\` => exit with the stack dump.
+
+To catch the signals, we’ll need to spin up a background goroutine which runs for the lifetime of our application. In this background goroutine, we can use the `signal.Notify()` function to listen for specific signals and relay them to a channel for further processing.
+
+```go
+go func() {
+    quit := make(chan os.Signal, 1)
+    signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+    s := <-quit
+    app.logger.PrintInfo("caught signal", map[string]string{
+        "signal": s.String(),
+    })
+    os.Exit(0)
+}()
+```
