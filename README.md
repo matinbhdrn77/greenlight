@@ -323,3 +323,7 @@ We need to use a buffered channel here because signal.Notify() does not wait for
 ## Chapter14 Sending Emails
 
 We’ll need access to a SMTP (Simple Mail Transfer Protocol) server that we can safely use for testing purposes.
+
+When we initiate a graceful shutdown of our application, it won’t wait for any background goroutines that we’ve launched to complete.
+
+When you want to wait for a collection of goroutines to finish their work, the principal too to help with this is the `sync.WaitGroup` type. Works like a 'counter'.
