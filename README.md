@@ -327,3 +327,22 @@ We’ll need access to a SMTP (Simple Mail Transfer Protocol) server that we can
 When we initiate a graceful shutdown of our application, it won’t wait for any background goroutines that we’ve launched to complete.
 
 When you want to wait for a collection of goroutines to finish their work, the principal too to help with this is the `sync.WaitGroup` type. Works like a 'counter'.
+
+## Chapter15 User Activation
+
+1. Create a cryptographically-secure random activation token that is impossible to guess.
+2. Store a hash of this activation token in a new tokens table, alongside the new user’s ID and an expiry time for the token.
+3. send the original (unhashed) activation token to the user in their welcome email.
+4. The user subsequently submits their token to a new PUT /v1/users/activated endpoint.
+5. If the hash of the token exists in the tokens table and hasn’t expired, then we’ll update the activated status for the relevant user to true .
+6. Lastly, we’ll delete the activation token from our tokens table so that it can’t be used again.
+
+```SQL
+CREATE TABLE IF NOT EXISTS tokens (
+    hash bytea PRIMARY KEY,
+    user_id bigint NOT NULL REFERENCES users ON DELETE CASCADE,
+    expiry timestamp(0) with time zone NOT NULL,
+    scope text NOT NULL
+);
+```
+The scope column will denote what purpose the token can be used for restricting the purpose that the token can be used for.
