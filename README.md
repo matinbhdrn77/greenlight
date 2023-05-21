@@ -410,3 +410,8 @@ func (u *User) IsAnonymous() bool {
 Any values stored in the request context have the type `interface{}` . This means that after retrieving a value from the request context you need to assert it back to its original type before using it.
 
 It’s good practice to use your own custom type for the request context keys. This helps prevent naming collisions between your code and any third-party packages which are also using the request context to store information.
+
+## Chapter17 Permission-based Authorization
+
+`401 Unauthorized` response should be used when you have missing or
+bad authentication, and a `403 Forbidden` response should be used afterwards, when the user is authenticated but isn’t allowed to perform the requested operation.
