@@ -79,7 +79,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		TokenPlainText string `json:""token`
+		TokenPlainText string `json:"token"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -108,6 +108,17 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	user.Activated = true
+
+	err = app.models.Users.Update(user)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
 
 	err = app.models.Tokens.DeleteAllForUser(data.ScopeActivation, user.ID)
 	if err != nil {

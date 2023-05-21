@@ -191,7 +191,7 @@ func (m UserModel) GetForToken(tokenScope, tokenPlaintext string) (*User, error)
 		AND tokens.scope = $2
 		AND tokens.expiry > $3`
 
-	args := []interface{}{tokenHash, tokenScope, tokenPlaintext}
+	args := []interface{}{tokenHash[:], tokenScope, time.Now()}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
