@@ -406,3 +406,7 @@ func (u *User) IsAnonymous() bool {
 	return u == AnonymousUser
 }
 ```
+
+Any values stored in the request context have the type `interface{}` . This means that after retrieving a value from the request context you need to assert it back to its original type before using it.
+
+It’s good practice to use your own custom type for the request context keys. This helps prevent naming collisions between your code and any third-party packages which are also using the request context to store information.
