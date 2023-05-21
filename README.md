@@ -369,7 +369,7 @@ Comparing the password provided by a client against a (slow) hashed password is 
 
 **Stateful token authentication**:
 The value of the token is a high-entropy cryptographically-
-secure random string. This token — or a fast hash of it — is stored server-side in a database, alongside the user ID and an expiry time for the token.
+secure random string. This token — or a fast hash of it — is stored server-side in a database, alongside the user ID and an expiry time for the token. `Authorization: Bearer <token>`
 
 **Stateless token authentication**:
 Encode the user ID and expiry time in the token itself. The token is cryptographically signed to prevent tampering and (in some cases) encrypted to prevent the contents being read.
@@ -393,3 +393,16 @@ If you want to implement authentication checks against a hird-party identity pro
 response containing an ID token.
 - This ID token is itself a JWT. You need to validate and decode this JWT to get the actual user information, which includes things like their email address, name, birth date, timezone etc.
 - Now that you know who the user is, you can then implement a stateful or stateless authentication token pattern so that you don’t have to go through the whole process for every subsequent request.
+
+### Authenticating Requests
+`authenticate()` middleware method to execute the following logic:
+- `401 Unauthorized` response and an error message to let them know that their token is malformed or invalid.
+- If the authentication token is valid, we will look up the user details and add their details to the request context.
+- If no `Authorization` header was provided at all, then we will add the details for an anonymous user to the request context instead.
+
+```go
+var AnonymousUser = &User{}
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
+```
